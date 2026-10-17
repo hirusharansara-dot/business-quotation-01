@@ -1,0 +1,378 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Business Quotation</title>
+
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #fff9df;
+  color: #222;
+  margin: 0;
+  padding: 15px;
+}
+
+
+header {
+  background: #ffd52a;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+
+.card {
+  background: white;
+  padding: 16px;
+  margin-top: 15px;
+  border-radius: 12px;
+}
+
+
+input[type="text"],
+input[type="number"] {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0 12px;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  font-size: 16px;
+}
+
+
+.cover {
+  display: block;
+  padding: 9px;
+  background: #fff9df;
+  margin: 7px 0;
+  border-radius: 7px;
+}
+
+
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #ffd52a;
+  font-weight: bold;
+  margin: 5px 0;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+
+td, th {
+  padding: 9px 4px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+
+.money {
+  text-align: right;
+  white-space: nowrap;
+}
+
+
+.total {
+  background: #ffe477;
+  font-weight: bold;
+}
+
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+
+@media print {
+  body {
+    background: white;
+    padding: 0;
+  }
+
+
+  .form-area, .buttons {
+    display: none !important;
+  }
+
+
+  .card {
+    box-shadow: none;
+    margin-top: 0;
+  }
+
+
+  header {
+    background: #ffd52a !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+
+  table {
+    width: 100%;
+  }
+}
+</style>
+</head>
+
+
+<body>
+
+
+<header>
+  <h2>BUSINESS INSURANCE</h2>
+  <b>QUOTATION GENERATOR</b>
+</header>
+
+
+<div class="card form-area">
+  <h3>BUSINESS DETAILS</h3>
+
+
+  <label>BUSINESS NAME</label>
+  <input id="business" type="text"
+         placeholder="Business name">
+
+
+  <label>VALUE OF BUILDING (Rs.)</label>
+  <input id="A" type="number" value="0" min="0">
+
+
+  <label>VALUE OF STOCK (Rs.)</label>
+  <input id="B" type="number" value="0" min="0">
+
+
+  <label>VALUE OF ELECTRIC ITEMS (Rs.)</label>
+  <input id="C" type="number" value="0" min="0">
+
+
+  <label>VALUE OF GLASSES (Rs.)</label>
+  <input id="D" type="number" value="0" min="0">
+
+
+  <h3>SELECT COVERS</h3>
+
+
+  <label class="cover">
+    <input type="checkbox" id="fire" checked>
+    FIRE
+  </label>
+
+
+  <label class="cover">
+    <input type="checkbox" id="rcc" checked>
+    RCC
+  </label>
+
+
+  <label class="cover">
+    <input type="checkbox" id="burglary" checked>
+    BURGLARY
+  </label>
+
+
+  <label class="cover">
+    <input type="checkbox" id="electric" checked>
+    ELECTRIC ITEMS
+  </label>
+
+
+  <label class="cover">
+    <input type="checkbox" id="glasses" checked>
+    GLASSES
+  </label>
+
+
+  <label class="cover">
+    <input type="checkbox" id="tc" checked>
+    TC
+  </label>
+
+
+  <div class="buttons">
+    <button onclick="calculate()">
+      CALCULATE QUOTATION
+    </button>
+
+
+    <button onclick="window.print()">
+      PRINT / SAVE PDF
+    </button>
+  </div>
+</div>
+
+
+<div class="card">
+  <h3>QUOTATION SUMMARY</h3>
+
+
+  <p>
+    <b>Business:</b>
+    <span id="businessOut">—</span>
+  </p>
+
+
+  <p>
+    <b>Date:</b>
+    <span id="dateOut"></span>
+  </p>
+
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Cover / Fee</th>
+          <th class="money">Amount (Rs.)</th>
+        </tr>
+      </thead>
+
+
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+
+  <p>
+    <small>Rates calculated using the supplied formulas.</small>
+  </p>
+
+
+  <div class="buttons">
+    <button onclick="window.print()">
+      SAVE QUOTATION AS PDF
+    </button>
+  </div>
+</div>
+
+
+<script>
+function calculate() {
+
+
+  const n = id =>
+    Math.max(
+      0,
+      Number(document.getElementById(id).value) || 0
+    );
+
+
+  const money = value =>
+    value.toLocaleString("en-LK", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+
+  const A = n("A");
+  const B = n("B");
+  const C = n("C");
+  const D = n("D");
+
+
+  const covers = [
+    ["FIRE", ((A + B) / 100) * 0.3, "fire"],
+    ["RCC", ((A + B) / 100) * 0.05, "rcc"],
+    ["BURGLARY", ((A + B) / 100) * 0.175, "burglary"],
+    ["ELECTRIC ITEMS", (C / 100) * 0.5, "electric"],
+    ["GLASSES", (D / 100) * 3, "glasses"],
+    ["TC", ((A + B) / 100) * 0.0375, "tc"]
+  ];
+
+
+  let sum = 0;
+  let html = "";
+
+
+  covers.forEach(item => {
+    const [name, amount, id] = item;
+
+
+    if (document.getElementById(id).checked) {
+      sum += amount;
+
+
+      html += `
+        <tr>
+          <td>${name}</td>
+          <td class="money">${money(amount)}</td>
+        </tr>
+      `;
+    }
+  });
+
+
+  const K = (sum / 100) * 3;
+  const L = 300;
+  const M = (sum / 100) * 18;
+  const total = sum + K + L + M;
+
+
+  html += `
+    <tr>
+      <td>Cover Premium Subtotal</td>
+      <td class="money">${money(sum)}</td>
+    </tr>
+
+
+    <tr>
+      <td>ADMIN FEE</td>
+      <td class="money">${money(K)}</td>
+    </tr>
+
+
+    <tr>
+      <td>POLICY FEE</td>
+      <td class="money">${money(L)}</td>
+    </tr>
+
+
+    <tr>
+      <td>VAT</td>
+      <td class="money">${money(M)}</td>
+    </tr>
+
+
+    <tr class="total">
+      <td>TOTAL</td>
+      <td class="money">${money(total)}</td>
+    </tr>
+  `;
+
+
+  document.getElementById("rows").innerHTML = html;
+
+
+  document.getElementById("businessOut").textContent =
+    document.getElementById("business").value.trim() || "—";
+
+
+  document.getElementById("dateOut").textContent =
+    new Date().toLocaleDateString("en-GB");
+}
+
+
+document.getElementById("dateOut").textContent =
+  new Date().toLocaleDateString("en-GB");
+
+
+calculate();
+</script>
+
+
+</body>
+</html>
